@@ -1,78 +1,79 @@
-{% extends "base.html" %}
-{% block page_title %}
-Home
-{% endblock page_title %}
-
-
+{% extends "base.html" %} {% block page_title %} Home {% endblock page_title %}
 {% block js_link %}
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1e73d7877c6ea166ef350a5d51c3aab6"></script>
+<script
+  type="text/javascript"
+  src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1e73d7877c6ea166ef350a5d51c3aab6"
+></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-{% endblock %}
-
-{% block css_link %}
+{% endblock %} {% block css_link %}
 <link type="text/css" rel="stylesheet" href="/static/css/company_map.css" />
-{% endblock %}
+{% endblock %} {% block content %}
 
-
-{% block content %}
-
-<div id="map"></div>
+<section style="display: flex">
+  <div id="map"></div>
+  <div id="item_info"></div>
+</section>
 <script>
-    var mapContainer = document.getElementById('map'),
-        mapOption = {
-            center: new kakao.maps.LatLng(36.01606, 129.40045),
-            level: 5 // 지도의 확대 레벨
-        };
+  var mapContainer = document.getElementById("map"),
+    mapOption = {
+      center: new kakao.maps.LatLng(36.01606, 129.40045),
+      level: 5, // 지도의 확대 레벨
+    };
 
-    var map = new kakao.maps.Map(mapContainer, mapOption);
+  var map = new kakao.maps.Map(mapContainer, mapOption);
 </script>
-
-
 
 {% for section in company.sections.all %}
 <script>
-    //======커스텀 오버레이 영역 
-    var content = '<div id={{section.id}} class="overlaybox"  onClick="getId(this.id)">' +
-        '{{section.name}}' +
-        '</div>';
+  //======커스텀 오버레이 영역
+  var content =
+    '<div id={{section.id}} class="overlaybox"  onClick="getId(this.id)">' +
+    "{{section.name}}" +
+    "</div>";
 
-    var latitude = Number("{{section.latitude}}")
-    var longitude = Number("{{section.longitude}}")
+  var latitude = Number("{{section.latitude}}");
+  var longitude = Number("{{section.longitude}}");
 
-    // 커스텀 오버레이가 표시될 위치입니다 
-    var position = new kakao.maps.LatLng(latitude, longitude);
+  // 커스텀 오버레이가 표시될 위치입니다
+  var position = new kakao.maps.LatLng(latitude, longitude);
 
-    // 커스텀 오버레이를 생성합니다
-    var customOverlay = new kakao.maps.CustomOverlay({
-        position: position,
-        content: content,
-        xAnchor: 0.3,
-        yAnchor: 0.91
-    });
+  // 커스텀 오버레이를 생성합니다
+  var customOverlay = new kakao.maps.CustomOverlay({
+    position: position,
+    content: content,
+    xAnchor: 0.3,
+    yAnchor: 0.91,
+  });
 
-    // 커스텀 오버레이를 지도에 표시합니다
-    customOverlay.setMap(map);
-    map.setCopyrightPosition(kakao.maps.CopyrightPosition.BOTTOMRIGHT, false);
+  // 커스텀 오버레이를 지도에 표시합니다
+  customOverlay.setMap(map);
+  map.setCopyrightPosition(kakao.maps.CopyrightPosition.BOTTOMRIGHT, false);
+
+  kakao.maps.event.addListener(map, "dragend", function () {
+    $("#item_info").empty();
+  });
 </script>
 
 {% endfor %}
 
 <script>
-
-    function getId(id) {
-        $.ajax({
-            type: 'POST',
-            url: `/companies/{{company.id}}`,
-            data: JSON.stringify(id),
-            success: function (json) {
-                console.log("data pass success", json);
-            },
-            error: function (xhr, errmsg, err) {
-                console.log(err);
-            }
-        });
-    }
-
+  function getId(id) {
+    $.ajax({
+      type: "POST",
+      url: `/companies/{{company.id}}`,
+      data: JSON.stringify(id),
+      success: function (json) {
+        data = JSON.parse(json);
+        item = data[0]["fields"];
+        console.log(item);
+        $("#item_info").append("<h4> 이름 : " + item["name"] + "</h4>");
+        $("#item_info").append("<p> 이름 : " + item["temperature"] + "</p>");
+      },
+      error: function (xhr, errmsg, err) {
+        console.log(err);
+      },
+    });
+  }
 </script>
 
 {% endblock content %}
