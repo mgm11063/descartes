@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>{% block page_title %}{% endblock page_title %} | 테스트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="/static/css/common.css" />
+    {% block css_link %} {% endblock %}
+    {% block js_link %} {% endblock %}
+</head>
+
+<body>
+    {% block content %} {% endblock %}
+</body>
+
+
+</html>

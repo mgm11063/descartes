@@ -1,0 +1,22 @@
+#map {
+  width: 50%;
+  height: 100vh;
+}
+.overlaybox {
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  padding: 3% 5%;
+  font-size: 0.1rem;
+  cursor: pointer;
+}
+
+.overlaybox.active_green {
+  background-color: rgb(88, 186, 101);
+}
+.overlaybox.active_yello {
+  background-color: rgb(201, 172, 53);
+}
+.overlaybox.active_red {
+  background-color: rgb(192, 54, 54);
+}
