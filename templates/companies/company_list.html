@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block page_title %} 홈페이지 {% endblock page_title%}
+{% block content %}
+{% for company in companies %}
+{{company}}
+{% endfor %}
+
+
+{% endblock content %}

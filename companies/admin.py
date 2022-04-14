@@ -3,13 +3,14 @@ from .models import Company, Section, CompanyList, RiskFactor
 
 
 class SectionAdmin(admin.StackedInline):
+    list_display = ("id",)
     extra = 1
     model = Section
 
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ("company_list", "year")
+    list_display = ("id", "company_list", "year")
     search_fields = ("year",)
 
     inlines = [SectionAdmin]

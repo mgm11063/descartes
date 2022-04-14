@@ -8,6 +8,29 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 @csrf_exempt
+def company_list(request):
+    if request.method == "POST":
+        section = models.Section.objects.all()
+        section_json = serializers.serialize("json", section)
+        section_json_load = json.loads(section_json)
+        section_filter = [
+            x for x in section_json_load if x["fields"]["temperature"] > 30
+        ]
+        filtering_data = json.dumps(section_filter)
+        print(filtering_data)
+
+        return HttpResponse(content=filtering_data)
+
+    elif request.method == "GET":
+        company = models.Company.objects.all()
+        return render(
+            request,
+            "companies/company_list.html",
+            context={"company": company},
+        )
+
+
+@csrf_exempt
 def company_detail(request, pk):
     if request.method == "POST":
         item_id = json.loads(request.body)

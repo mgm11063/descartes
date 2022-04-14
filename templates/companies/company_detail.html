@@ -1,9 +1,6 @@
-{% extends "base.html" %} {% block page_title %} Home {% endblock page_title %}
+{% extends "base.html" %} {% block page_title %} 티테일 {% endblock page_title %}
 {% block js_link %}
-<script
-  type="text/javascript"
-  src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1e73d7877c6ea166ef350a5d51c3aab6"
-></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1e73d7877c6ea166ef350a5d51c3aab6"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %} {% block css_link %}
 <link type="text/css" rel="stylesheet" href="/static/css/company_map.css" />
@@ -13,13 +10,27 @@
   <div id="map"></div>
   <div id="item_info"></div>
 </section>
+
+<label for="row">낮음</label>
+<input id="row" type="radio" name="chk_info" value="row">
+
+<label for="nomal">보통</label>
+<input id="nomal" type="radio" name="chk_info" value="nomal">
+
+<label for="high">높음</label>
+<input id="high" type="radio" name="chk_info" value="high">
+
+<div id="filter">
+
+</div>
+
+
 <script>
   var mapContainer = document.getElementById("map"),
     mapOption = {
       center: new kakao.maps.LatLng(36.01606, 129.40045),
       level: 5, // 지도의 확대 레벨
     };
-
   var map = new kakao.maps.Map(mapContainer, mapOption);
 </script>
 
@@ -27,7 +38,7 @@
 <script>
   //======커스텀 오버레이 영역
   var content =
-    '<div id={{section.id}} class="overlaybox"  onClick="getId(this.id)">' +
+    '<div id={{section.id}} class="overlaybox"  onClick="getItemInfo(this.id)">' +
     "{{section.name}}" +
     "</div>";
 
@@ -53,27 +64,55 @@
     $("#item_info").empty();
   });
 </script>
-
 {% endfor %}
 
 <script>
-  function getId(id) {
+  var item_info = $("#item_info")
+  function sendItemId(id) {
     $.ajax({
       type: "POST",
-      url: `/companies/{{company.id}}`,
+      url: `/companies/{{company.id}}/`,
       data: JSON.stringify(id),
       success: function (json) {
         data = JSON.parse(json);
         item = data[0]["fields"];
         console.log(item);
-        $("#item_info").append("<h4> 이름 : " + item["name"] + "</h4>");
-        $("#item_info").append("<p> 이름 : " + item["temperature"] + "</p>");
+        $(item_info).append("<h4> 이름 : " + item["name"] + "</h4>");
+        $(item_info).append("<p> 온도 : " + item["temperature"] + "</p>");
       },
       error: function (xhr, errmsg, err) {
         console.log(err);
       },
     });
   }
+  function getItemInfo(id) {
+    sendItemId(id)
+  }
+</script>
+
+<script>
+
+  var t = document.getElementById('row');
+  var filter = document.getElementById("filter");
+  t.addEventListener('change', function (event) {
+    $.ajax({
+      type: "POST",
+      url: `/`,
+      data: JSON.stringify(t),
+      success: function (json) {
+        data = JSON.parse(json);
+        console.log(data);
+
+        for (i = 0; i < data.length; i++) {
+          $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
+          $(filter).append("<p> 필터링 된 놈의 온도" + data[i]["fields"]["temperature"] + "</p>");
+        }
+      },
+      error: function (xhr, errmsg, err) {
+        console.log(err);
+      },
+    });
+  });
 </script>
 
 {% endblock content %}
