@@ -24,7 +24,6 @@
 
 </div>
 
-
 <script>
   var mapContainer = document.getElementById("map"),
     mapOption = {
@@ -90,29 +89,58 @@
   }
 </script>
 
-<script>
 
-  var t = document.getElementById('row');
+<script>
+  //온도 낮음
+  var row_box = document.getElementById('row');
   var filter = document.getElementById("filter");
-  t.addEventListener('change', function (event) {
+  row_box.addEventListener('change', function (event) {
     $.ajax({
       type: "POST",
       url: `/`,
-      data: JSON.stringify(t),
+      data: JSON.stringify(row_box),
       success: function (json) {
         data = JSON.parse(json);
         console.log(data);
-
         for (i = 0; i < data.length; i++) {
           $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
-          $(filter).append("<p> 필터링 된 놈의 온도" + data[i]["fields"]["temperature"] + "</p>");
+          $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
+          $("#" + data[i]["pk"]).css("background-color", "blue");
         }
+
       },
       error: function (xhr, errmsg, err) {
         console.log(err);
       },
     });
   });
+
+  // 온도 보통
+
+  var nomal_box = document.getElementById('nomal');
+  var filter = document.getElementById("filter");
+  nomal_box.addEventListener('change', function (event) {
+    $.ajax({
+      type: "POST",
+      url: `/`,
+      data: JSON.stringify(nomal_box),
+      success: function (json) {
+        data = JSON.parse(json);
+        console.log(data);
+        for (i = 0; i < data.length; i++) {
+          $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
+          $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
+          $("#" + data[i]["pk"]).css("background-color", "blue");
+        }
+
+      },
+      error: function (xhr, errmsg, err) {
+        console.log(err);
+      },
+    });
+  });
+
+
 </script>
 
 {% endblock content %}
