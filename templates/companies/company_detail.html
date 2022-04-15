@@ -11,21 +11,28 @@
     <div id="item_info"></div>
   </section>
 
-  <div class="radio_box">
+  <form action="#">
+    <ul class="radio_box">
+      <h4>온도</h4>
+      <div>
+        <li>
+          <label for="row">낮음</label>
+          <input id="row" type="radio" name="chk_info" value="row">
+        </li>
+        <li>
+          <label for="nomal">보통</label>
+          <input id="nomal" type="radio" name="chk_info" value="nomal">
+        </li>
+        <li>
+          <label for="high">높음</label>
+          <input id="high" type="radio" name="chk_info" value="high">
+        </li>
+      </div>
 
-    <label for="row">낮음</label>
-    <input id="row" type="radio" name="chk_info" value="row">
-
-    <label for="nomal">보통</label>
-    <input id="nomal" type="radio" name="chk_info" value="nomal">
-
-    <label for="high">높음</label>
-    <input id="high" type="radio" name="chk_info" value="high">
-
-  </div>
+    </ul>
+  </form>
 
   <div id="filter">
-
   </div>
 </div>
 
@@ -33,7 +40,7 @@
   var mapContainer = document.getElementById("map"),
     mapOption = {
       center: new kakao.maps.LatLng(36.01606, 129.40045),
-      level: 5, // 지도의 확대 레벨
+      level: 6, // 지도의 확대 레벨
     };
   var map = new kakao.maps.Map(mapContainer, mapOption);
 </script>
@@ -117,6 +124,10 @@
           $("#" + data[i]["pk"]).addClass("active_green");
           $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
           $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
+          if (row_box.getAttribute("checked") == false) {
+            $("#" + data[i]["pk"]).removeClass("active_green");
+            $("#" + data[i]["pk"]).addClass("active_white");
+          }
         }
 
 
