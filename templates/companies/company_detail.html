@@ -78,102 +78,51 @@
   });
 </script>
 {% endfor %}
-
 <!-- Get filtering item -->
 <script>
-  // const filter_box = document.getElementById;
-  // if () {
-
-  // }
-  //온도 낮음
-  var row_box = document.getElementById('row');
-  var filter = document.getElementById("filter");
-  row_box.addEventListener('change', function (event) {
-    $.ajax({
-      type: "POST",
-      url: `/`,
-      data: {
-        "type": row_box.id
-      },
-      success: function (json) {
-        data = JSON.parse(json);
-        console.log(data);
-        for (i = 0; i < data.length; i++) {
-          $("#" + data[i]["pk"]).addClass("active_green");
-          $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
-          $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
-          $(filter).append("<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>");
-          if (row_box.getAttribute("checked") == false) {
-            $("#" + data[i]["pk"]).removeClass("active_green");
-            $("#" + data[i]["pk"]).addClass("active_white");
+  const filter = document.getElementById("filter");
+  function postSectionfiltering(type, color) {
+    type.addEventListener('change', function (event) {
+      $.ajax({
+        type: "POST",
+        url: `/`,
+        data: {
+          "type": type.id
+        },
+        success: function (json) {
+          data = JSON.parse(json);
+          for (i = 0; i < data.length; i++) {
+            $("#" + data[i]["pk"]).addClass(color);
+            $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
+            $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
+            $(filter).append("<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>");
+            if (type.getAttribute("checked") == false) {
+              $("#" + data[i]["pk"]).removeClass(color);
+              $("#" + data[i]["pk"]).addClass("active_white");
+            }
           }
-        }
-
-
-      },
-      error: function (xhr, errmsg, err) {
-        console.log(err);
-      },
+        },
+        error: function (xhr, errmsg, err) {
+          console.log(err);
+        },
+      });
     });
-  });
+  }
+
+  //온도 낮음
+  const row_box = document.getElementById('row');
+  const row_box_color = "active_green"
+  postSectionfiltering(row_box, row_box_color);
 
   // 온도 보통
-
-  var nomal_box = document.getElementById('nomal');
-  var filter = document.getElementById("filter");
-
-  nomal_box.addEventListener('change', function (event) {
-    $.ajax({
-      type: "POST",
-      url: `/`,
-      data: {
-        "type": nomal_box.id
-      },
-      success: function (json) {
-        data = JSON.parse(json);
-        console.log(data);
-        for (i = 0; i < data.length; i++) {
-          $("#" + data[i]["pk"]).addClass("active_yello");
-          $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
-          $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
-          $(filter).append("<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>");
-        }
-
-
-      },
-      error: function (xhr, errmsg, err) {
-        console.log(err);
-      },
-    });
-  });
-
+  const nomal_box = document.getElementById('nomal');
+  const nomal_box_color = "active_yello"
+  postSectionfiltering(nomal_box, nomal_box_color);
 
   //온도 높음
   var high_box = document.getElementById('high');
-  high_box.addEventListener('change', function (event) {
-    $.ajax({
-      type: "POST",
-      url: `/`,
-      data: {
-        "type": high_box.id
-      },
-      success: function (json) {
-        data = JSON.parse(json);
-        console.log(data);
-        for (i = 0; i < data.length; i++) {
-          $("#" + data[i]["pk"]).addClass("active_red");
-          $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
-          $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
-          $(filter).append("<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>");
-        }
-
-      },
-      error: function (xhr, errmsg, err) {
-        console.log(err);
-      },
-    });
-  });
-
+  const high_box_color = "active_red"
+  postSectionfiltering(high_box, high_box_color);
 
 </script>
 
