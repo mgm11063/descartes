@@ -1,1 +1,3 @@
-포항 안전기준 평가
+V1.0_DESCARTES DEMO
+
+Safety Environment Measurement Application / With Django + Kakao APi
