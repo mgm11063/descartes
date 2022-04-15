@@ -10,20 +10,32 @@ from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
 def company_list(request):
     if request.method == "POST":
-
         # 여기에 if 문걸어서 받아온 값 걸러서 필터링 조건 다시 세워야함
-        print(
-            request,
-            "asdfadsfjaisdfkjafijosiojpijpjiopiohuiuhjkioi111111212313131232131231231232",
-        )
+        # test = models.Company.objects.filter(pk=1).filter(sections__pk=0)
         section = models.Section.objects.all()
         section_json = serializers.serialize("json", section)
         section_json_load = json.loads(section_json)
-        section_filter = [
-            x for x in section_json_load if x["fields"]["temperature"] < 20
-        ]
-        filtering_data = json.dumps(section_filter)
-        return HttpResponse(content=filtering_data)
+        if request.POST.get("type") == "row":
+            section_filter = [
+                x for x in section_json_load if -50 < x["fields"]["temperature"] <= 25
+            ]
+            filtering_data = json.dumps(section_filter)
+            return HttpResponse(content=filtering_data)
+        elif request.POST.get("type") == "nomal":
+            section_filter = [
+                x for x in section_json_load if 26 <= x["fields"]["temperature"] <= 50
+            ]
+            filtering_data = json.dumps(section_filter)
+            return HttpResponse(content=filtering_data)
+
+        elif request.POST.get("type") == "high":
+            section_filter = [
+                x for x in section_json_load if 51 <= x["fields"]["temperature"] <= 99
+            ]
+            filtering_data = json.dumps(section_filter)
+            return HttpResponse(content=filtering_data)
+        else:
+            pass
 
     elif request.method == "GET":
         company = models.Company.objects.all()

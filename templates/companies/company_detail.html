@@ -5,23 +5,28 @@
 {% endblock %} {% block css_link %}
 <link type="text/css" rel="stylesheet" href="/static/css/company_map.css" />
 {% endblock %} {% block content %}
+<div class="wrap">
+  <section style="display: flex">
+    <div id="map"></div>
+    <div id="item_info"></div>
+  </section>
 
-<section style="display: flex">
-  <div id="map"></div>
-  <div id="item_info"></div>
-</section>
+  <div class="radio_box">
 
-<label for="row">낮음</label>
-<input id="row" type="radio" name="chk_info" value="row">
+    <label for="row">낮음</label>
+    <input id="row" type="radio" name="chk_info" value="row">
 
-<label for="nomal">보통</label>
-<input id="nomal" type="radio" name="chk_info" value="nomal">
+    <label for="nomal">보통</label>
+    <input id="nomal" type="radio" name="chk_info" value="nomal">
 
-<label for="high">높음</label>
-<input id="high" type="radio" name="chk_info" value="high">
+    <label for="high">높음</label>
+    <input id="high" type="radio" name="chk_info" value="high">
 
-<div id="filter">
+  </div>
 
+  <div id="filter">
+
+  </div>
 </div>
 
 <script>
@@ -77,7 +82,7 @@
         item = data[0]["fields"];
         console.log(item);
         $(item_info).append("<h4> 이름 : " + item["name"] + "</h4>");
-        $(item_info).append("<p> 온도 : " + item["temperature"] + "</p>");
+        $(item_info).append("<p> <span>온도 :</span> " + item["temperature"] + "°C </p>");
       },
       error: function (xhr, errmsg, err) {
         console.log(err);
@@ -91,6 +96,10 @@
 
 
 <script>
+  // const filter_box = document.getElementById;
+  // if () {
+
+  // }
   //온도 낮음
   var row_box = document.getElementById('row');
   var filter = document.getElementById("filter");
@@ -98,15 +107,18 @@
     $.ajax({
       type: "POST",
       url: `/`,
-      data: JSON.stringify(row_box),
+      data: {
+        "type": row_box.id
+      },
       success: function (json) {
         data = JSON.parse(json);
         console.log(data);
         for (i = 0; i < data.length; i++) {
+          $("#" + data[i]["pk"]).addClass("active_green");
           $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
           $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
-          $("#" + data[i]["pk"]).css("background-color", "blue");
         }
+
 
       },
       error: function (xhr, errmsg, err) {
@@ -119,18 +131,48 @@
 
   var nomal_box = document.getElementById('nomal');
   var filter = document.getElementById("filter");
+
   nomal_box.addEventListener('change', function (event) {
     $.ajax({
       type: "POST",
       url: `/`,
-      data: JSON.stringify(nomal_box),
+      data: {
+        "type": nomal_box.id
+      },
       success: function (json) {
         data = JSON.parse(json);
         console.log(data);
         for (i = 0; i < data.length; i++) {
+          $("#" + data[i]["pk"]).addClass("active_yello");
           $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
           $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
-          $("#" + data[i]["pk"]).css("background-color", "blue");
+        }
+
+
+      },
+      error: function (xhr, errmsg, err) {
+        console.log(err);
+      },
+    });
+  });
+
+
+  //온도 높음
+  var high_box = document.getElementById('high');
+  high_box.addEventListener('change', function (event) {
+    $.ajax({
+      type: "POST",
+      url: `/`,
+      data: {
+        "type": high_box.id
+      },
+      success: function (json) {
+        data = JSON.parse(json);
+        console.log(data);
+        for (i = 0; i < data.length; i++) {
+          $("#" + data[i]["pk"]).addClass("active_red");
+          $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
+          $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
         }
 
       },
