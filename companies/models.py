@@ -54,6 +54,9 @@ class Section(CoreModel):
     temperature = models.FloatField(
         "온도", null=True, validators=[MinValueValidator(0), MaxValueValidator(100)]
     )
+    noise = models.FloatField(
+        "소음", null=True, validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
 
     def __str__(self):
         return self.name

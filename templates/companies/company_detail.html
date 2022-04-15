@@ -3,6 +3,7 @@
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1e73d7877c6ea166ef350a5d51c3aab6"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %} {% block css_link %}
+<link type="text/css" rel="stylesheet" href="/static/css/chart.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/company_map.css" />
 {% endblock %} {% block content %}
 <div class="wrap">
@@ -34,8 +35,9 @@
 
   <div id="filter">
   </div>
-</div>
 
+</div>
+<!-- Create map -->
 <script>
   var mapContainer = document.getElementById("map"),
     mapOption = {
@@ -44,7 +46,7 @@
     };
   var map = new kakao.maps.Map(mapContainer, mapOption);
 </script>
-
+<!-- Create maping_item -->
 {% for section in company.sections.all %}
 <script>
   //======커스텀 오버레이 영역
@@ -77,31 +79,7 @@
 </script>
 {% endfor %}
 
-<script>
-  var item_info = $("#item_info")
-  function sendItemId(id) {
-    $.ajax({
-      type: "POST",
-      url: `/companies/{{company.id}}/`,
-      data: JSON.stringify(id),
-      success: function (json) {
-        data = JSON.parse(json);
-        item = data[0]["fields"];
-        console.log(item);
-        $(item_info).append("<h4> 이름 : " + item["name"] + "</h4>");
-        $(item_info).append("<p> <span>온도 :</span> " + item["temperature"] + "°C </p>");
-      },
-      error: function (xhr, errmsg, err) {
-        console.log(err);
-      },
-    });
-  }
-  function getItemInfo(id) {
-    sendItemId(id)
-  }
-</script>
-
-
+<!-- Get filtering item -->
 <script>
   // const filter_box = document.getElementById;
   // if () {
@@ -124,6 +102,7 @@
           $("#" + data[i]["pk"]).addClass("active_green");
           $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
           $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
+          $(filter).append("<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>");
           if (row_box.getAttribute("checked") == false) {
             $("#" + data[i]["pk"]).removeClass("active_green");
             $("#" + data[i]["pk"]).addClass("active_white");
@@ -157,6 +136,7 @@
           $("#" + data[i]["pk"]).addClass("active_yello");
           $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
           $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
+          $(filter).append("<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>");
         }
 
 
@@ -184,6 +164,7 @@
           $("#" + data[i]["pk"]).addClass("active_red");
           $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
           $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
+          $(filter).append("<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>");
         }
 
       },
@@ -194,6 +175,67 @@
   });
 
 
+</script>
+
+<!-- Get item info -->
+<script>
+  var item_info = $("#item_info")
+  function sendItemId(id) {
+    $.ajax({
+      type: "POST",
+      url: `/companies/{{company.id}}/`,
+      data: JSON.stringify(id),
+      success: function (json) {
+        data = JSON.parse(json);
+        item_id = data[0]["pk"];
+        item = data[0]["fields"];
+        item_temperature = item["temperature"]
+        item_noise = item["noise"]
+
+        $(item_info).append("<div class='chart_wrap'>" + "<canvas id=" + 'item' + item_id + " >" + "</canvas>" + "</div>");
+        createDetailChart(item_id, item_temperature, item_noise)
+
+
+        $(item_info).append("<h4> 이름 : " + item["name"] + "</h4>");
+        $(item_info).append("<p> <span>온도 :</span> " + item_temperature + "°C </p>");
+        $(item_info).append("<p> <span>소음 :</span> " + item_noise + " 데시벨</p>");
+      },
+      error: function (xhr, errmsg, err) {
+        console.log(err);
+      },
+    });
+  }
+  function getItemInfo(id) {
+    sendItemId(id)
+  }
+</script>
+
+<!-- TEST Creat chart -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  function createDetailChart(id, temperature, noise) {
+    console.log(id, temperature, noise)
+    const data = {
+      labels: [
+        '온도',
+        '소음',
+      ],
+      datasets: [{
+        data: [temperature, noise],
+        backgroundColor: [
+          'rgb(255, 99, 132)',
+          'rgb(54, 162, 235)',
+        ],
+      }]
+    };
+    const ctx = document.getElementById('item' + id);
+    const config = {
+      type: 'doughnut',
+      data: data,
+    };
+    const chart = new Chart(ctx, config);
+  }
 </script>
 
 {% endblock content %}
