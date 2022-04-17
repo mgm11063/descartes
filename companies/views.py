@@ -7,11 +7,16 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 
+def index(request):
+    pass
+
+
 @csrf_exempt
-def company_list(request):
+def item_filtering(request, pk):
     if request.method == "POST":
         # 여기에 if 문걸어서 받아온 값 걸러서 필터링 조건 다시 세워야함
-        # test = models.Company.objects.filter(pk=1).filter(sections__pk=0)
+        # test = models.Company.objects.filter(pk=pk).filter(sections__pk=1)
+        print(request.POST.get("type"))
         section = models.Section.objects.all()
         section_json = serializers.serialize("json", section)
         section_json_load = json.loads(section_json)
@@ -50,10 +55,13 @@ def company_list(request):
 def company_detail(request, pk):
     if request.method == "POST":
         item_id = json.loads(request.body)
+        company_all = models.Company.objects.filter(company_list__name="포스코")
         sections = models.Section.objects.all().filter(pk=item_id)
         item_data = serializers.serialize("json", sections)
-
-        response = HttpResponse(content=item_data)
+        company_all_data = serializers.serialize("json", company_all)
+        response = HttpResponse(
+            json.dumps({"item_data": item_data, "company_all_data": company_all_data})
+        )
         return response
 
     elif request.method == "GET":

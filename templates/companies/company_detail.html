@@ -1,15 +1,21 @@
-{% extends "base.html" %} {% block page_title %} 티테일 {% endblock page_title %}
+{% extends "base.html" %} {% block page_title %}티테일 {% endblock page_title %}
 {% block js_link %}
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1e73d7877c6ea166ef350a5d51c3aab6"></script>
+<script
+  type="text/javascript"
+  src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1e73d7877c6ea166ef350a5d51c3aab6"
+></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %} {% block css_link %}
 <link type="text/css" rel="stylesheet" href="/static/css/chart.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/company_map.css" />
-{% endblock %} {% block content %}
+{% endblock %} {% block content %} {% for company_year in company_all %}
+{{company_year.year}} {% endfor %}
 <div class="wrap">
   <section style="display: flex">
     <div id="map"></div>
-    <div id="item_info"></div>
+    <div id="item_info">
+      <ul class="item_year"></ul>
+    </div>
   </section>
 
   <form action="#">
@@ -18,24 +24,21 @@
       <div>
         <li>
           <label for="row">낮음</label>
-          <input id="row" type="radio" name="chk_info" value="row">
+          <input id="row" type="radio" name="chk_info" value="row" />
         </li>
         <li>
           <label for="nomal">보통</label>
-          <input id="nomal" type="radio" name="chk_info" value="nomal">
+          <input id="nomal" type="radio" name="chk_info" value="nomal" />
         </li>
         <li>
           <label for="high">높음</label>
-          <input id="high" type="radio" name="chk_info" value="high">
+          <input id="high" type="radio" name="chk_info" value="high" />
         </li>
       </div>
-
     </ul>
   </form>
 
-  <div id="filter">
-  </div>
-
+  <div id="filter"></div>
 </div>
 <!-- Create map -->
 <script>
@@ -51,7 +54,7 @@
 <script>
   //======커스텀 오버레이 영역
   var content =
-    '<div id={{section.id}} class="overlaybox"  onClick="getItemInfo(this.id)">' +
+    '<div id={{section.id}} class="overlaybox" onClick="getItemInfo(this.id)">' +
     "{{section.name}}" +
     "</div>";
 
@@ -78,28 +81,80 @@
   });
 </script>
 {% endfor %}
+
+<!-- TEST====  Get company history filtering -->
+<script>
+  overlaybox = document.getElementsByClassName("overlaybox");
+  overlaybox.addEventListener("click", function (event) {
+    // event.target.id;
+    // {{company.id}}
+    $.ajax({
+      type: "POST",
+      url: `item_filtering/`,
+      data: {
+        type: radio_type.id,
+      },
+      success: function (json) {
+        data = JSON.parse(json);
+        for (i = 0; i < data.length; i++) {
+          // 라디오 박스 체킹 부분 오류 픽스
+          if (radio_type.getAttribute("checked")) {
+            $("#" + data[i]["pk"]).removeClass(color);
+            $("#" + data[i]["pk"]).addClass("active_white");
+          }
+
+          $("#" + data[i]["pk"]).addClass(color);
+          $(filter).append(
+            "<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>"
+          );
+          $(filter).append(
+            "<p> 필터링 된 놈의 온도 :" +
+              data[i]["fields"]["temperature"] +
+              "</p>"
+          );
+          $(filter).append(
+            "<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>"
+          );
+        }
+      },
+      error: function (xhr, errmsg, err) {
+        console.log(err);
+      },
+    });
+  });
+</script>
 <!-- Get filtering item -->
 <script>
   const filter = document.getElementById("filter");
-  function postSectionfiltering(type, color) {
-    type.addEventListener('change', function (event) {
+  function postSectionfiltering(radio_type, color) {
+    radio_type.addEventListener("change", function (event) {
       $.ajax({
         type: "POST",
-        url: `/`,
+        url: `item_filtering/`,
         data: {
-          "type": type.id
+          type: radio_type.id,
         },
         success: function (json) {
           data = JSON.parse(json);
           for (i = 0; i < data.length; i++) {
-            $("#" + data[i]["pk"]).addClass(color);
-            $(filter).append("<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>");
-            $(filter).append("<p> 필터링 된 놈의 온도 :" + data[i]["fields"]["temperature"] + "</p>");
-            $(filter).append("<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>");
-            if (type.getAttribute("checked") == false) {
+            // 라디오 박스 체킹 부분 오류 픽스
+            if (radio_type.getAttribute("checked")) {
               $("#" + data[i]["pk"]).removeClass(color);
               $("#" + data[i]["pk"]).addClass("active_white");
             }
+
+            $("#" + data[i]["pk"]).addClass(color);
+            $(filter).append(
+              "<h4> 필터링 된 놈 이름 : " + data[i]["fields"]["name"] + "</h4>"
+            );
+            $(filter).append(
+              "<p> 필터링 된 놈의 온도 :" +
+                data[i]["fields"]["temperature"] +
+                "</p>"
+            );
+            $(filter).append(
+              "<p> 필터링 된 놈의 소음 :" + data[i]["fields"]["noise"] + "</p>"
+            );
           }
         },
         error: function (xhr, errmsg, err) {
@@ -110,44 +165,57 @@
   }
 
   //온도 낮음
-  const row_box = document.getElementById('row');
-  const row_box_color = "active_green"
+  const row_box = document.getElementById("row");
+  const row_box_color = "active_green";
   postSectionfiltering(row_box, row_box_color);
 
   // 온도 보통
-  const nomal_box = document.getElementById('nomal');
-  const nomal_box_color = "active_yello"
+  const nomal_box = document.getElementById("nomal");
+  const nomal_box_color = "active_yello";
   postSectionfiltering(nomal_box, nomal_box_color);
 
   //온도 높음
-  var high_box = document.getElementById('high');
-  const high_box_color = "active_red"
+  var high_box = document.getElementById("high");
+  const high_box_color = "active_red";
   postSectionfiltering(high_box, high_box_color);
-
 </script>
 
 <!-- Get item info -->
 <script>
-  var item_info = $("#item_info")
+  const item_info = $("#item_info");
+  const item_year = $(".item_year");
+
   function sendItemId(id) {
     $.ajax({
       type: "POST",
       url: `/companies/{{company.id}}/`,
       data: JSON.stringify(id),
       success: function (json) {
-        data = JSON.parse(json);
+        data = JSON.stringify(json, null, "\t").replace(/\r\n/, "");
+        console.log(JSON.parse(data));
         item_id = data[0]["pk"];
         item = data[0]["fields"];
-        item_temperature = item["temperature"]
-        item_noise = item["noise"]
+        item_temperature = item["temperature"];
+        item_noise = item["noise"];
 
-        $(item_info).append("<div class='chart_wrap'>" + "<canvas id=" + 'item' + item_id + " >" + "</canvas>" + "</div>");
-        createDetailChart(item_id, item_temperature, item_noise)
-
-
+        $(item_info).append(
+          "<div class='chart_wrap'>" +
+            "<canvas id=" +
+            "item" +
+            item_id +
+            " >" +
+            "</canvas>" +
+            "</div>"
+        );
+        createDetailChart(item_id, item_temperature, item_noise);
+        $(item_year).append("<li>{{company_all.year}}</li>");
         $(item_info).append("<h4> 이름 : " + item["name"] + "</h4>");
-        $(item_info).append("<p> <span>온도 :</span> " + item_temperature + "°C </p>");
-        $(item_info).append("<p> <span>소음 :</span> " + item_noise + " 데시벨</p>");
+        $(item_info).append(
+          "<p> <span>온도 :</span> " + item_temperature + "°C </p>"
+        );
+        $(item_info).append(
+          "<p> <span>소음 :</span> " + item_noise + " 데시벨</p>"
+        );
       },
       error: function (xhr, errmsg, err) {
         console.log(err);
@@ -155,32 +223,28 @@
     });
   }
   function getItemInfo(id) {
-    sendItemId(id)
+    sendItemId(id);
   }
 </script>
 
-<!-- TEST Creat chart -->
+<!-- Creat chart -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   function createDetailChart(id, temperature, noise) {
-    console.log(id, temperature, noise)
+    console.log(id, temperature, noise);
     const data = {
-      labels: [
-        '온도',
-        '소음',
+      labels: ["온도", "소음"],
+      datasets: [
+        {
+          data: [temperature, noise],
+          backgroundColor: ["rgb(255, 99, 132)", "rgb(54, 162, 235)"],
+        },
       ],
-      datasets: [{
-        data: [temperature, noise],
-        backgroundColor: [
-          'rgb(255, 99, 132)',
-          'rgb(54, 162, 235)',
-        ],
-      }]
     };
-    const ctx = document.getElementById('item' + id);
+    const ctx = document.getElementById("item" + id);
     const config = {
-      type: 'doughnut',
+      type: "doughnut",
       data: data,
     };
     const chart = new Chart(ctx, config);
